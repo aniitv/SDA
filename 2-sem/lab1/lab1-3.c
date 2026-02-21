@@ -4,7 +4,7 @@ double recursive_mixed(unsigned int n, double arg, unsigned int i, double curren
 {if (i == n)
 return current;
 
-double mult = - arg * arg / (4.0 * i * i + 2.0 * i);
+double mult = - arg * arg / (4 * i * i + 2 * i);
 double next = current * mult;
 
 return current + recursive_mixed(n, arg, i + 1, next);}

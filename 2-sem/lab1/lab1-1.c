@@ -27,8 +27,7 @@ int main() {
         return 1;
     }
     
-  
-  double result = recursive_descent(1, count,arg, 1, 0);
+  double result = recursive_descent(1, count, arg, arg, 0);
 
   printf("%lf\n", result);
 

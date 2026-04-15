@@ -3,20 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
+    
 
     <title>ASD lab3</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap");
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: pink;
+        color: white;
+        display: flex;
+        justify-content: center;
+      }
+      .container {
+        text-align: center;
+      }
+      #canvas {
+        display: flex;
+        background-color: white;
+      }
+      .buttons{
+        display: flex;
+        justify-content: center;
+      }
+      .btn{
+        margin: 10px;
+        background-color:hotpink;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        padding: 10px;
+        color: white
+      }
+    </style>
   </head>
   <body>
     <div class="container">
       <h1>Anastasiia Zotova IM-53</h1>
       <p>Variant: 5311</p>
       <div class="canvas">
-        <canvas id="canvasDirected" width="500" height="500">
-          <p>Directed graph</p>
-        </canvas>
-        <canvas id="canvasUndirected" width="500" height="500"></canvas>
+        <div class="buttons">
+          <button class='btn' onclick="drawDirected()">Directed</button>
+          <button class='btn 'onclick="drawUndirected()">Undirected</button>
+        </div>
+        <canvas id="canvas" width="500" height="500">
       </div>
     </div>
+    <script src="script.js"></script>
   </body>
 </html>

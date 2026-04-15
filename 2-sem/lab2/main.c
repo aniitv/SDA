@@ -89,7 +89,6 @@ void FreeList(List** head) {
 
     printf("\nFreeing memory:\n");
     
-   
     do {
         nextNode = current->next;
         printf("Freeing up: %c\n", current->data);

@@ -29,23 +29,22 @@ function genRandNum(seed) {
 }
 
 function genDirMatrix(rand, k) {
-  const rawMatrix = Array.from({ length: n }, () =>
-    Array.from({ length: n }, () => rand() * 2),
-  );
-
-  const dirMatrix = rawMatrix.map((row) =>
-    row.map((v) => (v * k >= 1 ? 1 : 0)),
-  );
-
-  return dirMatrix;
+  const matrix = [];
+  for (let i = 0; i < n; i++) {
+    const row = [];
+    for (let j = 0; j < n; j++) {
+      row.push(rand() * 2 * k >= 1 ? 1 : 0);
+    }
+    matrix.push(row);
+  }
+  return matrix;
 }
 
 function genUndirMatrix(dirMatrix) {
-  const undirMatrix = Array.from({ length: n }, () => Array(n).fill(0));
+  const undirMatrix = dirMatrix.map((row) => [...row]);
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      if (dirMatrix[i][j] === 1 || dirMatrix[j][i] === 1) {
-        undirMatrix[i][j] = 1;
+      if (dirMatrix[i][j] === 1) {
         undirMatrix[j][i] = 1;
       }
     }
@@ -55,42 +54,31 @@ function genUndirMatrix(dirMatrix) {
 
 const drawLoop = (ctx, x, y) => {
   ctx.beginPath();
-
   ctx.arc(x, y - RAD, RAD, Math.PI / 2, Math.PI * 2.5);
   ctx.stroke();
 };
 
 const drawCurve = (ctx, x1, y1, x2, y2, arrowed) => {
-  //коригування точок з урахуванням радіусу вершини
-  const angle = Math.atan2(y2 - y1, x2 - x1);
+  // коригування точок з урахуванням радіусу вершини
+  const angle = Math.atan2(y2 - y1, x2 - x1); // в радіанах
   const adjustedX1 = x1 + RAD * Math.cos(angle);
   const adjustedY1 = y1 + RAD * Math.sin(angle);
   const adjustedX2 = x2 - RAD * Math.cos(angle);
   const adjustedY2 = y2 - RAD * Math.sin(angle);
 
-  const midX = (adjustedX1 + adjustedX2) / 2;
-  const midY = (adjustedY1 + adjustedY2) / 2; // координати для точки вигину
-
-  const dx = adjustedX2 - adjustedX1;
-  const dy = adjustedY2 - adjustedY1;
-  const len = Math.sqrt(dx * dx + dy * dy); // довжина (як гіпотенуза)
-
-  const nx = -dy / len;
-  const ny = dx / len; // вектор перпендикуляра до лінії
-
-  const offset = len * 0.15;
-  const controlX = midX + nx * offset;
-  const controlY = midY + ny * offset; // зміщення для кривизни
-
   ctx.beginPath();
-  ctx.moveTo(adjustedX1, adjustedY1);
-  ctx.quadraticCurveTo(controlX, controlY, adjustedX2, adjustedY2);
   ctx.strokeStyle = "#000000";
   ctx.lineWidth = 2;
+
+  ctx.moveTo(adjustedX1, adjustedY1);
+  ctx.lineTo(adjustedX2, adjustedY2);
   ctx.stroke();
 
   if (arrowed) {
-    const arrowAngle = Math.atan2(adjustedY2 - controlY, adjustedX2 - controlX);
+    const arrowAngle = Math.atan2(
+      adjustedY2 - adjustedY1,
+      adjustedX2 - adjustedX1,
+    );
     ctx.beginPath();
     ctx.moveTo(adjustedX2, adjustedY2);
     ctx.lineTo(
@@ -132,6 +120,7 @@ for (let i = 0; i < n; i++) {
     y: centerY + radius * Math.sin(angle),
   });
 }
+
 function printMatrix(matrix, title) {
   console.log(`\n${title}:`);
   matrix.forEach((row) => {
@@ -154,6 +143,7 @@ const drawGraph = (matrix, directed) => {
         if (i === j) {
           drawLoop(ctx, node1.x, node1.y);
         } else {
+          if (!directed && i > j) return;
           drawCurve(ctx, node1.x, node1.y, node2.x, node2.y, directed);
         }
       }

@@ -7,8 +7,8 @@ const n2 = 3;
 const n3 = 1;
 const n4 = 1;
 
-const k1 = 1 - n3 * 0.01 - n4 * 0.01 - 0.3;
-const k2 = 1 - n3 * 0.005 - n4 * 0.005 - 0.27;
+const k1 = 1 - n3 * 0.01 - n4 * 0.01 - 0.3; // 0,68
+const k2 = 1 - n3 * 0.005 - n4 * 0.005 - 0.27; // 0,72
 const n = 10 + n3;
 
 const w = canvas.width;
@@ -17,76 +17,6 @@ const RAD = 20;
 const centerX = w / 2;
 const centerY = h / 2;
 const radius = 180;
-
-function matMul(A, B) {
-  const n = A.length;
-  const C = Array.from({ length: n }, () => Array(n).fill(0));
-  for (let i = 0; i < n; i++)
-    for (let k = 0; k < n; k++)
-      if (A[i][k]) for (let j = 0; j < n; j++) C[i][j] += A[i][k] * B[k][j];
-  return C;
-}
-
-function getReachability(matrix) {
-  const n = matrix.length;
-  const reach = matrix.map((row) => [...row]);
-  for (let i = 0; i < n; i++) reach[i][i] = 1;
-  for (let k = 0; k < n; k++) {
-    for (let i = 0; i < n; i++) {
-      for (let j = 0; j < n; j++) {
-        if (reach[i][j] === 1 || (reach[i][k] === 1 && reach[k][j] === 1)) {
-          reach[i][j] = 1;
-        }
-      }
-    }
-  }
-  return reach;
-}
-
-function strongConnectivityMatrix(array) {
-  const n = array.length;
-  const result = Array.from({ length: n }, () => Array(n).fill(0));
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
-      if (array[i][j] == 1 && array[j][i] == 1) result[i][j] = 1;
-    }
-  }
-  return result;
-}
-
-function getStrongComponents(matrix) {
-  const visited = Array(n).fill(false);
-  const components = [];
-  for (let i = 0; i < n; i++) {
-    if (visited[i]) continue;
-    const comp = [];
-    for (let j = 0; j < n; j++) {
-      if (matrix[i][j] === 1) {
-        comp.push(j + 1);
-        visited[j] = true;
-      }
-    }
-    if (comp.length > 0) components.push(comp);
-  }
-  return components;
-}
-
-function buildCondensationGraph(A, components) {
-  const m = components.length;
-  const C = Array.from({ length: m }, () => Array(m).fill(0));
-  const v2c = {};
-  components.forEach((comp, i) => comp.forEach((v) => (v2c[v - 1] = i)));
-  for (let u = 0; u < A.length; u++) {
-    for (let v = 0; v < A.length; v++) {
-      if (A[u][v]) {
-        const cu = v2c[u],
-          cv = v2c[v];
-        if (cu !== cv) C[cu][cv] = 1;
-      }
-    }
-  }
-  return C;
-}
 
 function genRandNum(seed) {
   const RANDOM_NUMBER = 2147483647;
@@ -204,6 +134,92 @@ const drawGraph = (matrix, directed) => {
   drawNodes(ctx, nodes);
 };
 
+function calculateDegrees(matrix, graphName) {
+  console.log(`\nНапівстепені та степені ${graphName}:`);
+  for (let i = 0; i < n; i++) {
+    let degree = { вхід: 0, вихід: 0, всього: 0 };
+    for (let j = 0; j < n; j++) {
+      if (matrix[i][j] === 1) degree.вихід++;
+      if (matrix[j][i] === 1) degree.вхід++;
+    }
+    degree.всього = degree.вхід + degree.вихід;
+    console.log(
+      `вершина ${i + 1}: вхід: ${degree.вхід}, вихід: ${degree.вихід}, всього: ${degree.всього}`,
+    );
+  }
+}
+
+function matMul(A, B) {
+  const n = A.length;
+  const C = Array.from({ length: n }, () => Array(n).fill(0));
+  for (let i = 0; i < n; i++)
+    for (let k = 0; k < n; k++)
+      if (A[i][k]) for (let j = 0; j < n; j++) C[i][j] += A[i][k] * B[k][j];
+  return C;
+}
+
+function getReachability(matrix) {
+  const n = matrix.length;
+  const reach = matrix.map((row) => [...row]);
+  for (let i = 0; i < n; i++) reach[i][i] = 1;
+  for (let k = 0; k < n; k++) {
+    ///
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        if (reach[i][j] === 1 || (reach[i][k] === 1 && reach[k][j] === 1)) {
+          reach[i][j] = 1;
+        }
+      }
+    }
+  }
+  return reach;
+}
+
+function strongConnectivityMatrix(array) {
+  const n = array.length;
+  const result = Array.from({ length: n }, () => Array(n).fill(0));
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (array[i][j] == 1 && array[j][i] == 1) result[i][j] = 1;
+    }
+  }
+  return result;
+}
+
+function getStrongComponents(matrix) {
+  const visited = Array(n).fill(false);
+  const components = [];
+  for (let i = 0; i < n; i++) {
+    if (visited[i]) continue;
+    const comp = [];
+    for (let j = 0; j < n; j++) {
+      if (matrix[i][j] === 1) {
+        comp.push(j + 1);
+        visited[j] = true;
+      }
+    }
+    if (comp.length > 0) components.push(comp);
+  }
+  return components;
+}
+
+function buildCondensationGraph(A, components) {
+  const m = components.length;
+  const C = Array.from({ length: m }, () => Array(m).fill(0));
+  const v2c = {};
+  components.forEach((comp, i) => comp.forEach((v) => (v2c[v - 1] = i)));
+  for (let u = 0; u < A.length; u++) {
+    for (let v = 0; v < A.length; v++) {
+      if (A[u][v]) {
+        const cu = v2c[u],
+          cv = v2c[v];
+        if (cu !== cv) C[cu][cv] = 1;
+      }
+    }
+  }
+  return C;
+}
+
 const rand = genRandNum(seed);
 const dirMatrix = genDirMatrix(rand, k1);
 const undirMatrix = genUndirMatrix(dirMatrix);
@@ -226,18 +242,7 @@ for (let i = 0; i < n; i++) {
   console.log(`вершина ${i + 1}: ${degrees[i]}`);
 }
 
-console.log("\nНапівстепені та степені напрямленого графу:");
-for (let i = 0; i < n; i++) {
-  let degree = { вхід: 0, вихід: 0, всього: 0 };
-  for (let j = 0; j < n; j++) {
-    if (dirMatrix[i][j] == 1) degree.вихід++;
-    if (dirMatrix[j][i] == 1) degree.вхід++;
-  }
-  degree.всього = degree.вхід + degree.вихід;
-  console.log(
-    `вершина ${i + 1}: вхід: ${degree.вхід}, вихід: ${degree.вихід}, всього: ${degree.всього}`,
-  );
-}
+calculateDegrees(dirMatrix, "напрямленого графу");
 
 let regularGraph = true;
 degrees.forEach((degree, i) => {
@@ -248,18 +253,7 @@ degrees.forEach((degree, i) => {
 if (regularGraph) console.log(`\nГраф є регулярним зі степенем ${degrees[0]}`);
 else console.log("\nГраф не є регулярним");
 
-console.log("\nНапівстепені та степені модифікованого графу:");
-for (let i = 0; i < n; i++) {
-  let degree = { вхід: 0, вихід: 0, всього: 0 };
-  for (let j = 0; j < n; j++) {
-    if (modifiedMatrix[i][j] == 1) degree.вихід++;
-    if (modifiedMatrix[j][i] == 1) degree.вхід++;
-  }
-  degree.всього = degree.вхід + degree.вихід;
-  console.log(
-    `вершина ${i + 1}: вхід: ${degree.вхід}, вихід: ${degree.вихід}, всього: ${degree.всього}`,
-  );
-}
+calculateDegrees(modifiedMatrix, "модифікованого графу");
 
 const A2 = matMul(modifiedMatrix, modifiedMatrix);
 const A3 = matMul(A2, modifiedMatrix);

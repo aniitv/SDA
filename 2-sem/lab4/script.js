@@ -163,7 +163,6 @@ function getReachability(matrix) {
   const reach = matrix.map((row) => [...row]);
   for (let i = 0; i < n; i++) reach[i][i] = 1;
   for (let k = 0; k < n; k++) {
-    ///
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         if (reach[i][j] === 1 || (reach[i][k] === 1 && reach[k][j] === 1)) {
@@ -203,21 +202,31 @@ function getStrongComponents(matrix) {
   return components;
 }
 
-function buildCondensationGraph(A, components) {
-  const m = components.length;
-  const C = Array.from({ length: m }, () => Array(m).fill(0));
-  const v2c = {};
-  components.forEach((comp, i) => comp.forEach((v) => (v2c[v - 1] = i)));
-  for (let u = 0; u < A.length; u++) {
-    for (let v = 0; v < A.length; v++) {
-      if (A[u][v]) {
-        const cu = v2c[u],
-          cv = v2c[v];
-        if (cu !== cv) C[cu][cv] = 1;
+function buildCondensation(matrix, groups) {
+  const size = groups.length;
+  const result = Array.from({ length: size }, () => Array(size).fill(0));
+
+  const map = {};
+
+  groups.forEach((group, groupIdx) => {
+    group.forEach((v) => {
+      map[v - 1] = groupIdx;
+    });
+  });
+
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix.length; j++) {
+      if (matrix[i][j] === 1) {
+        const groupFrom = map[i];
+        const groupTo = map[j];
+
+        if (groupFrom !== groupTo) {
+          result[groupFrom][groupTo] = 1;
+        }
       }
     }
   }
-  return C;
+  return result;
 }
 
 const rand = genRandNum(seed);
@@ -228,7 +237,7 @@ const modifiedMatrix = genDirMatrix(rand, k2);
 const reachMatrix = getReachability(modifiedMatrix);
 const strongConnMatrix = strongConnectivityMatrix(reachMatrix);
 const components = getStrongComponents(strongConnMatrix);
-const condensationMatrix = buildCondensationGraph(modifiedMatrix, components);
+const condensationMatrix = buildCondensation(modifiedMatrix, components);
 
 console.log("Степені ненапрямленого графу:");
 let degrees = new Array(n).fill(0);

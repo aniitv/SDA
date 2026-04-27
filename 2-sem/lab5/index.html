@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>ASD lab4</title>
+    <title>ASD lab5</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap");
       body {
@@ -41,10 +41,11 @@
       <p>Variant: 5311</p>
       <div class="canvas">
         <div class="buttons">
-          <button class="btn" onclick="drawDirected()">Directed</button>
-          <button class="btn" onclick="drawUndirected()">Undirected</button>
-          <button class="btn" onclick="drawModified()">Modified</button>
-          <button class="btn" onclick="drawCondense()">Condense</button>
+          <button class="btn" id="btnDirected">Directed</button>
+          <button class="btn" id="btnBFS">BFS</button>
+          <button class="btn" id="btnDFS">DFS</button>
+          <button class="btn" id="btnNextStep">Next</button>
+          <button class="btn" id="btnReset">Reset</button>
         </div>
         <canvas id="canvas" width="500" height="500"></canvas>
       </div>

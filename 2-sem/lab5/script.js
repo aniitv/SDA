@@ -68,6 +68,61 @@ function findStartNode() {
   return -1;
 }
 
+function resetState() {
+  visited.clear();
+  queue = [];
+  stack = [];
+  treeEdges = [];
+  isBFS = false;
+  isDFS = false;
+  activeNode = null;
+}
+
+function bfsStep() {
+  if (queue.length === 0) {
+    const next = findStartNode();
+    if (next === -1) return alert("Обхід завершено");
+    queue.push(next);
+    visited.add(next);
+    activeNode = next;
+    return;
+  }
+  const curr = queue.shift();
+  activeNode = curr;
+  for (let neighbor = 0; neighbor < n; neighbor++) {
+    if (dirMatrix[curr][neighbor] === 1 && !visited.has(neighbor)) {
+      visited.add(neighbor);
+      queue.push(neighbor);
+      treeEdges.push({ from: curr, to: neighbor });
+    }
+  }
+}
+
+function dfsStep() {
+  if (stack.length === 0) {
+    const next = findStartNode();
+    if (next === -1) return alert("Обхід завершено");
+    stack.push(next);
+    activeNode = next;
+    return;
+  }
+  const curr = stack[stack.length - 1];
+  activeNode = curr;
+  if (!visited.has(curr)) visited.add(curr);
+
+  let found = false;
+  for (let neighbor = 0; neighbor < n; neighbor++) {
+    if (dirMatrix[curr][neighbor] === 1 && !visited.has(neighbor)) {
+      treeEdges.push({ from: curr, to: neighbor });
+      visited.add(neighbor);
+      stack.push(neighbor);
+      found = true;
+      break;
+    }
+  }
+  if (!found) stack.pop();
+}
+
 window.startBFS = () => {
   resetState();
   isBFS = true;
@@ -91,66 +146,11 @@ window.startDFS = () => {
   draw();
 };
 
-function resetState() {
-  visited.clear();
-  queue = [];
-  stack = [];
-  treeEdges = [];
-  isBFS = false;
-  isDFS = false;
-  activeNode = null;
-}
-
 window.makeStep = () => {
   if (isBFS) bfsStep();
   if (isDFS) dfsStep();
   draw();
 };
-
-function bfsStep() {
-  if (queue.length === 0) {
-    const next = findStartNode();
-    if (next === -1) return alert("Обхід завершено!");
-    queue.push(next);
-    visited.add(next);
-    activeNode = next;
-    return;
-  }
-  const curr = queue.shift();
-  activeNode = curr;
-  for (let neighbor = 0; neighbor < n; neighbor++) {
-    if (dirMatrix[curr][neighbor] === 1 && !visited.has(neighbor)) {
-      visited.add(neighbor);
-      queue.push(neighbor);
-      treeEdges.push({ from: curr, to: neighbor });
-    }
-  }
-}
-
-function dfsStep() {
-  if (stack.length === 0) {
-    const next = findStartNode();
-    if (next === -1) return alert("Обхід завершено!");
-    stack.push(next);
-    activeNode = next;
-    return;
-  }
-  const curr = stack[stack.length - 1];
-  activeNode = curr;
-  if (!visited.has(curr)) visited.add(curr);
-
-  let found = false;
-  for (let neighbor = 0; neighbor < n; neighbor++) {
-    if (dirMatrix[curr][neighbor] === 1 && !visited.has(neighbor)) {
-      treeEdges.push({ from: curr, to: neighbor });
-      visited.add(neighbor);
-      stack.push(neighbor);
-      found = true;
-      break;
-    }
-  }
-  if (!found) stack.pop();
-}
 
 function draw() {
   ctx.clearRect(0, 0, w, h);
@@ -167,7 +167,7 @@ function draw() {
     ctx.beginPath();
     ctx.arc(node.x, node.y, RAD, 0, Math.PI * 2);
 
-    if (i === activeNode) ctx.fillStyle = "#b7eff3";
+    if (i === activeNode) ctx.fillStyle = "#6fc1c7";
     else if (visited.has(i)) ctx.fillStyle = "hotpink";
     else ctx.fillStyle = "white";
 
@@ -236,6 +236,6 @@ document.getElementById("btnReset").onclick = () => {
   resetState();
   draw();
   console.clear();
-  console.log("Стан скинуто");
 };
+
 draw();

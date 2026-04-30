@@ -81,7 +81,10 @@ function resetState() {
 function bfsStep() {
   if (queue.length === 0) {
     const next = findStartNode();
-    if (next === -1) return alert("Обхід завершено");
+    if (next === -1) {
+      logResults();
+      return alert("Обхід завершено");
+    }
     queue.push(next);
     visited.add(next);
     activeNode = next;
@@ -101,7 +104,10 @@ function bfsStep() {
 function dfsStep() {
   if (stack.length === 0) {
     const next = findStartNode();
-    if (next === -1) return alert("Обхід завершено");
+    if (next === -1) {
+      logResults();
+      return alert("Обхід завершено");
+    }
     stack.push(next);
     activeNode = next;
     return;
@@ -154,28 +160,22 @@ window.makeStep = () => {
 
 function draw() {
   ctx.clearRect(0, 0, w, h);
-
   dirMatrix.forEach((row, i) => {
     row.forEach((val, j) => {
       if (val === 1) drawEdge(i, j, "#616161", true);
     });
   });
-
   treeEdges.forEach((edge) => drawEdge(edge.from, edge.to, "red", true, 3));
-
   nodes.forEach((node, i) => {
     ctx.beginPath();
     ctx.arc(node.x, node.y, RAD, 0, Math.PI * 2);
-
     if (i === activeNode) ctx.fillStyle = "#6fc1c7";
     else if (visited.has(i)) ctx.fillStyle = "hotpink";
     else ctx.fillStyle = "white";
-
     ctx.fill();
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
     ctx.stroke();
-
     ctx.fillStyle = "black";
     ctx.font = "bold 14px Poppins";
     ctx.textAlign = "center";
@@ -189,7 +189,6 @@ function drawEdge(i, j, color, arrowed, width = 1) {
   const n2 = nodes[j];
   ctx.strokeStyle = color;
   ctx.lineWidth = width;
-
   if (i === j) {
     ctx.beginPath();
     ctx.arc(n1.x, n1.y - RAD, RAD, Math.PI / 2, Math.PI * 2.5);
@@ -200,12 +199,10 @@ function drawEdge(i, j, color, arrowed, width = 1) {
     const y1 = n1.y + RAD * Math.sin(angle);
     const x2 = n2.x - RAD * Math.cos(angle);
     const y2 = n2.y - RAD * Math.sin(angle);
-
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.stroke();
-
     if (arrowed) {
       ctx.fillStyle = color;
       ctx.beginPath();
@@ -223,19 +220,37 @@ function drawEdge(i, j, color, arrowed, width = 1) {
   }
 }
 
+function printMatrix(matrix, title) {
+  console.log(`\n${title}:`);
+  matrix.forEach((row) => console.log(row.join(" ")));
+}
+
+function logResults() {
+  printMatrix(dirMatrix, "Матриця суміжності напрямленого графу");
+
+  const treeMatrix = Array.from({ length: n }, () => Array(n).fill(0));
+  treeEdges.forEach((edge) => {
+    treeMatrix[edge.from][edge.to] = 1;
+  });
+  printMatrix(treeMatrix, "Матриця суміжності дерева обходу");
+
+  console.log("\nВідповідність номерів вершин");
+  const order = Array.from(visited);
+  order.forEach((oldIdx, newIdx) => {
+    console.log(`вершина ${oldIdx + 1}: новий номер ${newIdx + 1}`);
+  });
+}
+
 document.getElementById("btnDirected").onclick = () => {
   resetState();
   draw();
 };
-
 document.getElementById("btnBFS").onclick = window.startBFS;
 document.getElementById("btnDFS").onclick = window.startDFS;
 document.getElementById("btnNextStep").onclick = window.makeStep;
-
 document.getElementById("btnReset").onclick = () => {
   resetState();
   draw();
   console.clear();
 };
-
 draw();
